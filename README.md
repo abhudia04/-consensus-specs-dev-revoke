@@ -1,7 +1,7 @@
-# consensus-specs-dev-revoke
+# consensus-specs-dev
 This repo contains the update for the implementation of the pubkey-change. The consensus-spec/dev branch was cloned on 16.02.2023
 
-# Executable Python Specs (PySpec)
+# Executable Python Specs (PySpec) - Revoke
 The executable Python spec is built from the consensus specications, complemented with the necessary helper functions for hashing, BLS, and more. 
 
 With this executable spec, test-generators can easily create test-vectors for client implementations, and the spec itself can be verified to be consistent and coherent through sanity tests implemented with pytest. 
