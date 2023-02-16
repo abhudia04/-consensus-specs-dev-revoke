@@ -1,0 +1,36 @@
+*.pyc
+/__pycache__
+venv
+.venvs
+.venv
+/.pytest_cache
+
+build/
+output/
+dist/
+
+consensus-spec-tests/
+
+.pytest_cache
+.mypy_cache
+
+# Dynamically built from Markdown spec
+tests/core/pyspec/eth2spec/phase0/
+tests/core/pyspec/eth2spec/altair/
+tests/core/pyspec/eth2spec/bellatrix/
+tests/core/pyspec/eth2spec/capella/
+tests/core/pyspec/eth2spec/deneb/
+
+# coverage reports
+.htmlcov
+.coverage
+.coverage.*
+
+# local CI testing output
+tests/core/pyspec/test-reports
+tests/core/pyspec/eth2spec/test_results.xml
+
+*.egg-info
+
+# TOC tool outputs temporary files
+*.tmp
