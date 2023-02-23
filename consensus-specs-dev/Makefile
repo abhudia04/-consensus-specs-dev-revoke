@@ -28,7 +28,6 @@ MARKDOWN_FILES = $(wildcard $(SPEC_DIR)/phase0/*.md) \
                  $(wildcard $(SPEC_DIR)/bellatrix/*.md) \
                  $(wildcard $(SPEC_DIR)/capella/*.md) $(wildcard $(SPEC_DIR)/capella/**/*.md) \
                  $(wildcard $(SPEC_DIR)/deneb/*.md) $(wildcard $(SPEC_DIR)/deneb/**/*.md) \
-				 $(wildcard $(SPEC_DIR)/revoke/*.md) $(wildcard $(SPEC_DIR)/revoke/**/*.md) \
                  $(wildcard $(SPEC_DIR)/_features/custody/*.md) \
                  $(wildcard $(SPEC_DIR)/_features/das/*.md) \
                  $(wildcard $(SPEC_DIR)/_features/sharding/*.md) \
@@ -69,7 +68,6 @@ partial_clean:
 	rm -rf $(ETH2SPEC_MODULE_DIR)/bellatrix
 	rm -rf $(ETH2SPEC_MODULE_DIR)/capella
 	rm -rf $(ETH2SPEC_MODULE_DIR)/deneb
-	rm -rf $(ETH2SPEC_MODULE_DIR)/revoke	
 	rm -rf $(COV_HTML_OUT_DIR)
 	rm -rf $(TEST_REPORT_DIR)
 	rm -rf eth2spec.egg-info dist build
@@ -144,7 +142,7 @@ codespell:
 lint: pyspec
 	. venv/bin/activate; cd $(PY_SPEC_DIR); \
 	flake8  --config $(LINTER_CONFIG_FILE) ./eth2spec \
-	&& pylint --rcfile $(LINTER_CONFIG_FILE) ./eth2spec/phase0 ./eth2spec/altair ./eth2spec/bellatrix ./eth2spec/capella ./eth2spec/deneb ./eth2spec/revoke \
+	&& pylint --rcfile $(LINTER_CONFIG_FILE) ./eth2spec/phase0 ./eth2spec/altair ./eth2spec/bellatrix ./eth2spec/capella ./eth2spec/deneb \
 	&& mypy --config-file $(LINTER_CONFIG_FILE) -p eth2spec.phase0 -p eth2spec.altair -p eth2spec.bellatrix -p eth2spec.capella -p eth2spec.deneb
 
 lint_generators: pyspec
