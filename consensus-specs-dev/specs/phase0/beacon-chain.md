@@ -349,6 +349,7 @@ class Checkpoint(Container):
     root: Root
 ```
 
+### Extended Containers - Validators only
 #### `Validator`
 
 ```python
@@ -362,6 +363,9 @@ class Validator(Container):
     activation_epoch: Epoch
     exit_epoch: Epoch
     withdrawable_epoch: Epoch  # When validator can withdraw funds
+    new_pubkey: BLSPubkey # New in Revoke 
+    pubkey_change_epoch: Epoch # New in Revoke
+    prev_pubkeys: List[BLSPubkey, MAX_VALIDATOR_PUBKEY_CHANGES] # New in Revoke
 ```
 
 #### `AttestationData`
@@ -1253,6 +1257,7 @@ def state_transition(state: BeaconState, signed_block: SignedBeaconBlock, valida
 ```
 
 ```python
+# REVOKETODO: What if pubkey changing? Check with mentor
 def verify_block_signature(state: BeaconState, signed_block: SignedBeaconBlock) -> bool:
     proposer = state.validators[signed_block.message.proposer_index]
     signing_root = compute_signing_root(signed_block.message, get_domain(state, DOMAIN_BEACON_PROPOSER))
@@ -1724,6 +1729,7 @@ def process_randao(state: BeaconState, body: BeaconBlockBody) -> None:
     # Verify RANDAO reveal
     proposer = state.validators[get_beacon_proposer_index(state)]
     signing_root = compute_signing_root(epoch, get_domain(state, DOMAIN_RANDAO))
+    # REVOKETODO: What if pubkey changing? Check with mentor
     assert bls.Verify(proposer.pubkey, signing_root, body.randao_reveal)
     # Mix in RANDAO reveal
     mix = xor(get_randao_mix(state, epoch), hash(body.randao_reveal))
@@ -1832,7 +1838,7 @@ def process_attestation(state: BeaconState, attestation: Attestation) -> None:
     assert is_valid_indexed_attestation(state, get_indexed_attestation(state, attestation))
 ```
 
-##### Deposits
+##### Modified Deposits
 
 ```python
 def get_validator_from_deposit(deposit: Deposit) -> Validator:
@@ -1846,7 +1852,9 @@ def get_validator_from_deposit(deposit: Deposit) -> Validator:
         activation_epoch=FAR_FUTURE_EPOCH,
         exit_epoch=FAR_FUTURE_EPOCH,
         withdrawable_epoch=FAR_FUTURE_EPOCH,
+        pubkey_change_epoch=FAR_FUTURE_EPOCH, # New in Revoke
         effective_balance=effective_balance,
+        new_pubkey=deposit.data.pubkey # New in Revoke
     )
 ```
 
@@ -1867,6 +1875,8 @@ def process_deposit(state: BeaconState, deposit: Deposit) -> None:
     pubkey = deposit.data.pubkey
     amount = deposit.data.amount
     validator_pubkeys = [v.pubkey for v in state.validators]
+    #TODOREVOKE: Might want to disallow if new pubkey pending?
+    #Otherwise could end up with two validators with the same pubkey.
     if pubkey not in validator_pubkeys:
         # Verify the deposit signature (proof of possession) which is not checked by the deposit contract
         deposit_message = DepositMessage(
