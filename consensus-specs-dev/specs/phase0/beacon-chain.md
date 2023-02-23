@@ -1257,7 +1257,6 @@ def state_transition(state: BeaconState, signed_block: SignedBeaconBlock, valida
 ```
 
 ```python
-# REVOKETODO: What if pubkey changing? Check with mentor
 def verify_block_signature(state: BeaconState, signed_block: SignedBeaconBlock) -> bool:
     proposer = state.validators[signed_block.message.proposer_index]
     signing_root = compute_signing_root(signed_block.message, get_domain(state, DOMAIN_BEACON_PROPOSER))
