@@ -669,15 +669,6 @@ def retrieve_blobs_sidecar(slot: Slot, beacon_block_root: Root) -> PyUnion[Blobs
     # pylint: disable=unused-argument
     return "TEST"'''
 
-    @classmethod
-    def hardcoded_custom_type_dep_constants(cls, spec_object) -> str:
-        constants = {
-            'BYTES_PER_FIELD_ELEMENT': spec_object.constant_vars['BYTES_PER_FIELD_ELEMENT'].value,
-            #'FIELD_ELEMENTS_PER_BLOB': spec_object.preset_vars['FIELD_ELEMENTS_PER_BLOB'].value,
-            #'MAX_BLOBS_PER_BLOCK': spec_object.preset_vars['MAX_BLOBS_PER_BLOCK'].value,
-        }
-        return {**super().hardcoded_custom_type_dep_constants(spec_object), **constants}
-
 
 spec_builders = {
     builder.fork: builder
@@ -1035,11 +1026,7 @@ class PySpecCommand(Command):
                 """
             if self.spec_fork == REVOKE:
                 self.md_doc_paths += """
-                    specs/deneb/beacon-chain.md
-                    specs/deneb/fork.md
-                    specs/deneb/fork-choice.md
-                    specs/deneb/p2p-interface.md
-                    specs/deneb/validator.md
+                    specs/revoke/beacon-chain.md
                 """                
             if len(self.md_doc_paths) == 0:
                 raise Exception('no markdown files specified, and spec fork "%s" is unknown', self.spec_fork)

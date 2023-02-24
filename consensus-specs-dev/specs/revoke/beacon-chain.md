@@ -173,6 +173,25 @@ class SignedPubKeyChange(Container): # [New in Revoke]
     signature: BLSSignature
 ```
 
+### Extended Containers - Validators only
+#### `Validator`
+
+```python
+class Validator(Container):
+    pubkey: BLSPubkey
+    withdrawal_credentials: Bytes32  # Commitment to pubkey for withdrawals
+    effective_balance: Gwei  # Balance at stake
+    slashed: boolean
+    # Status epochs
+    activation_eligibility_epoch: Epoch  # When criteria for activation were met
+    activation_epoch: Epoch
+    exit_epoch: Epoch
+    withdrawable_epoch: Epoch  # When validator can withdraw funds
+    new_pubkey: BLSPubkey # New in Revoke 
+    pubkey_change_epoch: Epoch # New in Revoke
+    prev_pubkeys: List[BLSPubkey, MAX_VALIDATOR_PUBKEY_CHANGES] # New in Revoke
+```
+
 ### Extended Containers
 
 #### `ExecutionPayload`
@@ -619,6 +638,26 @@ def initiate_pubkey_change(state: BeaconState, index: ValidatorIndex,
     validator.pubkey_change_epoch = get_current_epoch(state) + PUBKEY_CHANGE_DELAY 
 ```
 
+##### Modified Deposits
+
+```python
+def get_validator_from_deposit(deposit: Deposit) -> Validator:
+    amount = deposit.data.amount
+    effective_balance = min(amount - amount % EFFECTIVE_BALANCE_INCREMENT, MAX_EFFECTIVE_BALANCE)
+
+    return Validator(
+        pubkey=deposit.data.pubkey,
+        withdrawal_credentials=deposit.data.withdrawal_credentials,
+        activation_eligibility_epoch=FAR_FUTURE_EPOCH,
+        activation_epoch=FAR_FUTURE_EPOCH,
+        exit_epoch=FAR_FUTURE_EPOCH,
+        withdrawable_epoch=FAR_FUTURE_EPOCH,
+        pubkey_change_epoch=FAR_FUTURE_EPOCH, # New in Revoke
+        effective_balance=effective_balance,
+        new_pubkey=deposit.data.pubkey # New in Revoke
+    )
+```
+
 ## Testing
 
 *Note*: The function `initialize_beacon_state_from_eth1` is modified for pure Capella testing only.
@@ -651,6 +690,12 @@ def initialize_beacon_state_from_eth1(eth1_block_hash: Hash32,
         deposit_data_list = List[DepositData, 2**DEPOSIT_CONTRACT_TREE_DEPTH](*leaves[:index + 1])
         state.eth1_data.deposit_root = hash_tree_root(deposit_data_list)
         process_deposit(state, deposit)
+    
+    #NOTES for - def process_deposit in phase 0 beacon-chain.md
+        #validator_pubkeys = [v.pubkey for v in state.validators]
+    #TODOREVOKE: Might want to disallow if new pubkey pending?
+    #Otherwise could end up with two validators with the same pubkey.
+    #if pubkey not in validator_pubkeys:
 
     # Process activations
     for index, validator in enumerate(state.validators):
